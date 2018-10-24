@@ -10,7 +10,7 @@ import (
 	log "github.com/sirupsen/logrus"
 )
 
-func parseProduct(result soup.Root) {
+func parseProduct(result soup.Root, pch chan Product) {
 	product := Product{}
 
 	product.Link = result.Find("a", "class", "s-access-detail-page").Attrs()["href"]
@@ -26,7 +26,7 @@ func parseProduct(result soup.Root) {
 		product.GetReviews()
 	}
 
-	json.NewEncoder(os.Stdout).Encode(product)
+	pch <- product
 }
 
 func main() {
@@ -45,8 +45,13 @@ func main() {
 	doc := soup.HTMLParse(resp)
 	results := doc.Find("div", "id", "mainResults").FindAll("li", "class", "s-result-item")
 
+	pch := make(chan Product)
 	for _, result := range results {
-		parseProduct(result)
+		go parseProduct(result, pch)
+	}
+
+	for range results {
+		json.NewEncoder(os.Stdout).Encode(<-pch)
 	}
 
 	fmt.Printf("{\"time\": \"%s\", \"count\": %d}\n", time.Since(now), len(results))
