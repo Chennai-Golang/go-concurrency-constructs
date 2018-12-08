@@ -34,9 +34,6 @@ func main() {
 
 	resp, err := soup.Get("https://www.amazon.in/chocolates-sweets-store/b/?ie=UTF8&node=4859499031&ref_=sv_topnav_storetab_gourmet_2")
 
-	// fmt.Println("Main fetch time: ", time.Since(now))
-	// now = time.Now().UTC()
-
 	if err != nil {
 		log.Error("Encountered error: ", err)
 		os.Exit(1)
