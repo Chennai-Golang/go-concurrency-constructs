@@ -4,12 +4,15 @@ import (
 	"encoding/json"
 	"fmt"
 	"os"
+	"sync"
 	"time"
 
 	"github.com/anaskhan96/soup"
 )
 
-func parseProduct(result soup.Root) {
+var products []Product
+
+func parseProduct(result soup.Root, wg *sync.WaitGroup, mut *sync.Mutex) {
 	product := Product{}
 
 	product.Link = result.Find("a", "class", "s-access-detail-page").Attrs()["href"]
@@ -19,7 +22,11 @@ func parseProduct(result soup.Root) {
 
 	product.GetReviews()
 
-	json.NewEncoder(os.Stdout).Encode(product)
+	mut.Lock()
+	products = append(products, product)
+	mut.Unlock()
+
+	wg.Done()
 }
 
 func main() {
@@ -37,9 +44,16 @@ func main() {
 	doc := soup.HTMLParse(resp)
 	results := doc.Find("div", "id", "mainResults").FindAll("li", "class", "s-result-item")
 
+	var wg sync.WaitGroup
+	var mut sync.Mutex
 	for _, result := range results {
-		parseProduct(result)
+		wg.Add(1)
+		go parseProduct(result, &wg, &mut)
 	}
+
+	wg.Wait()
+
+	json.NewEncoder(os.Stdout).Encode(products)
 
 	fmt.Printf("{\"time\": \"%s\", \"count\": %d}\n", time.Since(now), len(results))
 }
