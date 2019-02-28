@@ -7,6 +7,7 @@ import (
 	"time"
 
 	"github.com/anaskhan96/soup"
+	log "github.com/sirupsen/logrus"
 )
 
 func parseProduct(result soup.Root) {
@@ -17,7 +18,9 @@ func parseProduct(result soup.Root) {
 	product.Image = result.Find("img", "class", "s-access-image").Attrs()["src"]
 	product.Price = result.Find("span", "class", "s-price").Text()
 
-	product.GetReviews()
+	if string([]rune(product.Link)[0]) != "/" {
+		product.GetReviews()
+	}
 
 	json.NewEncoder(os.Stdout).Encode(product)
 }
@@ -25,12 +28,13 @@ func parseProduct(result soup.Root) {
 func main() {
 	now := time.Now().UTC()
 
-	resp, err := soup.Get("https://www.amazon.in/b/?_encoding=UTF8&node=1389401031&ref_=sv_top_elec_mega_1")
+	resp, err := soup.Get("https://www.amazon.in/TVs/b/ref=nav_shopall_sbc_tvelec_television?ie=UTF8&node=1389396031")
 
 	// fmt.Println("Main fetch time: ", time.Since(now))
 	// now = time.Now().UTC()
 
 	if err != nil {
+		log.Error("Encountered error: ", err)
 		os.Exit(1)
 	}
 

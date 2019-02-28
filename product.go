@@ -1,9 +1,8 @@
 package main
 
 import (
-	"os"
-
 	"github.com/anaskhan96/soup"
+	log "github.com/sirupsen/logrus"
 )
 
 // A Product represents a product on amazon
@@ -24,7 +23,8 @@ func (product *Product) GetReviews() {
 	// now = time.Now().UTC()
 
 	if err != nil {
-		os.Exit(1)
+		log.Error("Encountered error {%s} while vising: %#v", err, product)
+		return
 	}
 
 	doc := soup.HTMLParse(resp)
