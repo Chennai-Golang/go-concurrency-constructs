@@ -47,9 +47,12 @@ func main() {
 		go parseProduct(result, pch)
 	}
 
+	var products []Product
 	for range results {
-		json.NewEncoder(os.Stdout).Encode(<-pch)
+		products = append(products, <-pch)
 	}
+
+	json.NewEncoder(os.Stdout).Encode(products)
 
 	fmt.Printf("{\"time\": \"%s\", \"count\": %d}\n", time.Since(now), len(results))
 }
