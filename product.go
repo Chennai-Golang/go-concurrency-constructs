@@ -23,7 +23,7 @@ func (product *Product) GetReviews() {
 	// now = time.Now().UTC()
 
 	if err != nil {
-		log.Error("Encountered error {%s} while vising: %#v", err, product)
+		log.Error("Encountered error: {", err, "} while fetching reviews for: ", product.Name)
 		return
 	}
 
