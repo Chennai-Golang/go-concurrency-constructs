@@ -16,7 +16,11 @@ func parseProduct(result soup.Root) {
 	product.Link = result.Find("a", "class", "s-access-detail-page").Attrs()["href"]
 	product.Name = result.Find("h2", "class", "s-access-title").Text()
 	product.Image = result.Find("img", "class", "s-access-image").Attrs()["src"]
-	product.Price = result.Find("span", "class", "s-price").Text()
+
+	priceNode := result.Find("span", "class", "s-price")
+	if priceNode.Pointer != nil {
+		product.Price = result.Find("span", "class", "s-price").Text()
+	}
 
 	if string([]rune(product.Link)[0]) != "/" {
 		product.GetReviews()
@@ -28,7 +32,7 @@ func parseProduct(result soup.Root) {
 func main() {
 	now := time.Now().UTC()
 
-	resp, err := soup.Get("https://www.amazon.in/TVs/b/ref=nav_shopall_sbc_tvelec_television?ie=UTF8&node=1389396031")
+	resp, err := soup.Get("https://www.amazon.in/chocolates-sweets-store/b/?ie=UTF8&node=4859499031&ref_=sv_topnav_storetab_gourmet_2")
 
 	// fmt.Println("Main fetch time: ", time.Since(now))
 	// now = time.Now().UTC()
